@@ -1,0 +1,95 @@
+---
+title: "CRANberry Pi"
+subtitle: "miniCRAN on a Raspberry Pi"
+author: "Ellis Valentiner"
+date: "Mar. 8th, 2018"
+output:
+  xaringan::moon_reader:
+    css: [default, 'style.css']
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+editor_options: 
+  chunk_output_type: console
+---
+class: bottom, left, inverse
+background-image: url(assets/IMG_9539.jpg)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Merriweather|Raleway|Source+Code+Pro" rel="stylesheet">
+
+```{r, include=FALSE}
+library(sf)
+library(maps)
+library(ggplot2)
+library(forcats)
+library(leaflet)
+library(geosphere)
+library(dplyr)
+
+knitr::opts_chunk$set(
+  echo=FALSE, message=FALSE
+)
+```
+
+# @ellisvalentiner
+
+### <span style="padding-left:2em;">Data Scientist @Powerley</span>
+
+### <span style="padding-left:2em;">Organizer @AnnArborRUserGroup</span>
+
+### <span style="padding-left:2em;"><i class="fab fa-github"></i> <i class="fab fa-twitter" aria-hidden="true"></i> <i class="fab fa-google" aria-hidden="true"></i></span>
+
+---
+
+# CRAN
+
+
+
+---
+
+# miniCRAN
+
+R package to create internally consistent, mini version of CRAN
+
+## why?
+
+* private packages
+* works with packrat
+
+---
+
+# Example
+
+```{r example, eval=FALSE, echo=TRUE}
+library("miniCRAN")
+makeRepo(
+    pkgs = pkgs,
+    path = "/home/pi/CRANberryPi"
+)
+```
+
+---
+
+```{r}
+available.packages(repos = "10.0.1.110")
+```
+
+
+---
+class: center, middle, inverse
+background-image: url(assets/IMG_E7538.JPG)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+
+# Thanks!
+
+### @ellisvalentiner
+
+#### <i class="fab fa-github"></i> <i class="fab fa-twitter" aria-hidden="true"></i> <i class="fab fa-google" aria-hidden="true"></i>

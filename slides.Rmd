@@ -33,7 +33,7 @@ library(geosphere)
 library(dplyr)
 
 knitr::opts_chunk$set(
-  echo=FALSE, message=FALSE
+  echo=TRUE, message=FALSE, eval=FALSE
 )
 ```
 
@@ -47,27 +47,131 @@ knitr::opts_chunk$set(
 
 ---
 
+# What I'm going to talk about
+
+### Brief node on CRAN
+
+### Overview of the miniCRAN package
+
+### Introduce the CRANberry Pi
+
+---
+
 # CRAN
 
+.pull-left[
+### CRAN is a network of ftp and web servers around the world that store identical, up-to-date, versions of code and documentation for R.
+]
+.pull-right[
+### 12,247+ packages
 
+### 
+]
 
 ---
 
 # miniCRAN
 
-R package to create internally consistent, mini version of CRAN
+### R package to create internally consistent, mini version of CRAN
 
-## why?
+### Benefits:
 
-* private packages
-* works with packrat
+* Maintain private mirror with only the packages you need
+
+* Host private packages
+
+* Works with packrat
+
+https://github.com/andrie/miniCRAN
 
 ---
 
 # Example
 
-```{r example, eval=FALSE, echo=TRUE}
+### Create a new repo
+
+```{r example}
 library("miniCRAN")
+pkgs <- c("Rcpp", "rlang", "pillar")
+makeRepo(pkgs = pkgs, path = "/home/pi/CRANberryPi")
+```
+
+--
+
+### Add more packages
+
+```{r}
+addPackage(pkgs = c("ggplot2", "lubridate"), path = "/home/pi/CRANberryPi")
+```
+
+---
+
+# Example
+
+### Add a local package
+
+```{r}
+addLocalPackage(pkgs = "lubridateExtras",
+                pkgPath = "/home/pi",
+                path = "/home/pi/CRANberryPi")
+```
+
+### Updating packages
+
+```{r}
+pkgs <- oldPackages(path = "/home/pi/CRANberryPi")
+updatePackage(pkgs = pkgs, path = "/home/pi/CRANberryPi")
+```
+
+---
+class: center, middle
+
+# Introducing the **CRANberryPi**
+
+#### a slice of CRAN
+
+---
+
+# CRANberryPi
+
+### miniCRAN on a Raspberry Pi
+
+* Install R and dependencies
+
+* Setup miniCRAN
+
+---
+
+# Raspberry Pi setup
+
+```{bash}
+#!/usr/local/bin/sh
+apt-get update
+apt-get install -y r-base \
+  r-base-dev \
+  r-recommended \   # recommended packages
+  r-cran-littler \  # cli r
+  r-cran-curl \     # miniCRAN dep
+  r-cran-httr \     # miniCRAN dep
+  r-cran-igraph \   # miniCRAN dep
+  r-cran-rjson \    # miniCRAN dep
+  r-cran-xml \      # miniCRAN dep
+  nginx             # web server
+r -e 'install.packages(c("miniCRAN"), repos="https://cloud.r-project.org/")'
+```
+
+---
+
+# miniCRAN setup
+
+```{r}
+#!/usr/loca/bin/R
+library(rjson)
+library(miniCRAN)
+top_packages <- fromJSON(file = "https://cranlogs.r-pkg.org:443/top/last-month/10",
+                         unexpected.escape = "keep")
+pkgs <- do.call(c, lapply(top_packages$downloads, function(x) x[[1]]))
+dir.create("/home/pi/CRANberryPi")
 makeRepo(
     pkgs = pkgs,
     path = "/home/pi/CRANberryPi"
@@ -76,10 +180,31 @@ makeRepo(
 
 ---
 
+# Add the `nothing` packages
+
+`nothing` is a private package not on CRAN
+
 ```{r}
-available.packages(repos = "10.0.1.110")
+addLocalPackage(
+    pkgs = "nothing",
+    pkgPath = "/home/pi",
+    path = "/home/pi/CRANberryPi"
+)
 ```
 
+---
+
+# Verify that your packages are installed
+
+```{r, echo=TRUE}
+rownames(available.packages(repos = "10.0.1.110"))
+```
+
+---
+
+# Recap
+
+CRAN is a network of ftp
 
 ---
 class: center, middle, inverse

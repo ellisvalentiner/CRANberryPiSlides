@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CRANberry Pi</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Ellis Valentiner" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# CRANberry Pi
+## miniCRAN on a Raspberry Pi
+### Ellis Valentiner
+### Mar. 8th, 2018
+
+---
+
+class: bottom, left, inverse
+background-image: url(assets/IMG_9539.jpg)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+&lt;link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet"&gt;
+&lt;link href="https://fonts.googleapis.com/css?family=Merriweather|Raleway|Source+Code+Pro" rel="stylesheet"&gt;
+
+
+
+# @ellisvalentiner
+
+### &lt;span style="padding-left:2em;"&gt;Data Scientist @Powerley&lt;/span&gt;
+
+### &lt;span style="padding-left:2em;"&gt;Organizer @AnnArborRUserGroup&lt;/span&gt;
+
+### &lt;span style="padding-left:2em;"&gt;&lt;i class="fab fa-github"&gt;&lt;/i&gt; &lt;i class="fab fa-twitter" aria-hidden="true"&gt;&lt;/i&gt; &lt;i class="fab fa-google" aria-hidden="true"&gt;&lt;/i&gt;&lt;/span&gt;
+
+---
+
+# What I'm going to talk about
+
+### Brief node on CRAN
+
+### Overview of the miniCRAN package
+
+### Introduce the CRANberry Pi
+
+---
+
+# CRAN
+
+.pull-left[
+### CRAN is a network of ftp and web servers around the world that store identical, up-to-date, versions of code and documentation for R.
+]
+.pull-right[
+### 12,247+ packages
+
+### 
+]
+
+---
+
+# miniCRAN
+
+### R package to create internally consistent, mini version of CRAN
+
+### Benefits:
+
+* Maintain private mirror with only the packages you need
+
+* Host private packages
+
+* Works with packrat
+
+https://github.com/andrie/miniCRAN
+
+---
+
+# Example
+
+### Create a new repo
+
+
+```r
+library("miniCRAN")
+pkgs &lt;- c("Rcpp", "rlang", "pillar")
+makeRepo(pkgs = pkgs, path = "/home/pi/CRANberryPi")
+```
+
+--
+
+### Add more packages
+
+
+```r
+addPackage(pkgs = c("ggplot2", "lubridate"), path = "/home/pi/CRANberryPi")
+```
+
+---
+
+# Example
+
+### Add a local package
+
+
+```r
+addLocalPackage(pkgs = "lubridateExtras",
+                pkgPath = "/home/pi",
+                path = "/home/pi/CRANberryPi")
+```
+
+### Updating packages
+
+
+```r
+pkgs &lt;- oldPackages(path = "/home/pi/CRANberryPi")
+updatePackage(pkgs = pkgs, path = "/home/pi/CRANberryPi")
+```
+
+---
+class: center, middle
+
+# Introducing the **CRANberryPi**
+
+#### a slice of CRAN
+
+---
+
+# CRANberryPi
+
+### miniCRAN on a Raspberry Pi
+
+* Install R and dependencies
+
+* Setup miniCRAN
+
+---
+
+# Raspberry Pi setup
+
+
+```bash
+#!/usr/local/bin/sh
+apt-get update
+apt-get install -y r-base \
+  r-base-dev \
+  r-recommended \   # recommended packages
+  r-cran-littler \  # cli r
+  r-cran-curl \     # miniCRAN dep
+  r-cran-httr \     # miniCRAN dep
+  r-cran-igraph \   # miniCRAN dep
+  r-cran-rjson \    # miniCRAN dep
+  r-cran-xml \      # miniCRAN dep
+  nginx             # web server
+r -e 'install.packages(c("miniCRAN"), repos="https://cloud.r-project.org/")'
+```
+
+---
+
+# miniCRAN setup
+
+
+```r
+#!/usr/loca/bin/R
+library(rjson)
+library(miniCRAN)
+top_packages &lt;- fromJSON(file = "https://cranlogs.r-pkg.org:443/top/last-month/10",
+                         unexpected.escape = "keep")
+pkgs &lt;- do.call(c, lapply(top_packages$downloads, function(x) x[[1]]))
+dir.create("/home/pi/CRANberryPi")
+makeRepo(
+    pkgs = pkgs,
+    path = "/home/pi/CRANberryPi"
+)
+```
+
+---
+
+# Add the `nothing` packages
+
+`nothing` is a private package, not on CRAN
+
+It provides absolutely _nothing_
+
+
+```r
+addLocalPackage(
+    pkgs = "nothing",
+    pkgPath = "/home/pi",
+    path = "/home/pi/CRANberryPi"
+)
+```
+
+---
+
+### Verify that packages are installed on the CRANberryPi
+
+
+```r
+rownames(available.packages(repos = "10.0.1.110"))
+```
+
+--
+
+### Install them!
+
+
+```r
+install.packages("nothing", repos = "10.0.1.110")
+```
+
+---
+class: center, middle, inverse
+background-image: url(assets/IMG_E7538.JPG)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+
+# Thanks!
+
+### @ellisvalentiner
+
+#### &lt;i class="fab fa-github"&gt;&lt;/i&gt; &lt;i class="fab fa-twitter" aria-hidden="true"&gt;&lt;/i&gt; &lt;i class="fab fa-google" aria-hidden="true"&gt;&lt;/i&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

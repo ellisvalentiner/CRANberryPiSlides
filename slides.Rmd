@@ -24,14 +24,6 @@ background-size: cover
 <link href="https://fonts.googleapis.com/css?family=Merriweather|Raleway|Source+Code+Pro" rel="stylesheet">
 
 ```{r, include=FALSE}
-library(sf)
-library(maps)
-library(ggplot2)
-library(forcats)
-library(leaflet)
-library(geosphere)
-library(dplyr)
-
 knitr::opts_chunk$set(
   echo=TRUE, message=FALSE, eval=FALSE
 )
@@ -182,7 +174,9 @@ makeRepo(
 
 # Add the `nothing` packages
 
-`nothing` is a private package not on CRAN
+`nothing` is a private package, not on CRAN
+
+It provides absolutely _nothing_
 
 ```{r}
 addLocalPackage(
@@ -194,17 +188,19 @@ addLocalPackage(
 
 ---
 
-# Verify that your packages are installed
+### Verify that packages are installed on the CRANberryPi
 
 ```{r, echo=TRUE}
 rownames(available.packages(repos = "10.0.1.110"))
 ```
 
----
+--
 
-# Recap
+### Install them!
 
-CRAN is a network of ftp
+```{r, echo=TRUE}
+install.packages("nothing", repos = "10.0.1.110")
+```
 
 ---
 class: center, middle, inverse
